@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 # https://stackoverflow.com/questions/66272299/cross-compiling-rusts-serialport-crate
 serialport = "4.0.1"
+hex = "0.4.3"
