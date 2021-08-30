@@ -7,12 +7,13 @@ fn main() {
 
     match available_ports() {
         Ok(it) => println!("{:?}", it),
-        Err(e) => println!("{}", e)
+        Err(e) => println!("{}", e),
     }
 
     let mut port = serialport::new("/dev/ttyUSB0", 9600)
         .timeout(Duration::from_secs(2))
-        .open_native().expect("Failed to open port");
+        .open_native()
+        .expect("Failed to open port");
 
     println!("timeout: {}", port.timeout().as_secs());
 
@@ -35,5 +36,8 @@ fn main() {
     println!("{:?}", buffer);
 
     let soc_result = usb_1::parse_90(buffer).unwrap();
-    println!("voltage: {}V, current: {}A, soc: {}%", soc_result.0, soc_result.1, soc_result.2);
+    println!(
+        "voltage: {}V, current: {}A, soc: {}%",
+        soc_result.0, soc_result.1, soc_result.2
+    );
 }
