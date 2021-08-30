@@ -35,5 +35,5 @@ fn main() {
     println!("{:?}", buffer);
 
     let soc_result = usb_1::parse_90(buffer).unwrap();
-    println!("soc: {:?}", soc_result);
+    println!("voltage: {}V, current: {}A, soc: {}%", soc_result.0, soc_result.1, soc_result.2);
 }
