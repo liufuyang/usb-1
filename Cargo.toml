@@ -6,7 +6,16 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name = "usb-daly"
+path = "src/daly/main.rs"
+
+[[bin]]
+name = "usb-qucc"
+path = "src/qucc/main.rs"
+
 [dependencies]
 # https://stackoverflow.com/questions/66272299/cross-compiling-rusts-serialport-crate
 serialport = "4.0.1"
 hex = "0.4.3"
+crc16 = "0.4.0"
