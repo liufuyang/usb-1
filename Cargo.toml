@@ -14,8 +14,13 @@ path = "src/daly/main.rs"
 name = "usb-qucc"
 path = "src/qucc/main.rs"
 
+[[bin]]
+name = "qucc-egui"
+path = "src/qucc_egui/main.rs"
+
 [dependencies]
 # https://stackoverflow.com/questions/66272299/cross-compiling-rusts-serialport-crate
 serialport = "4.0.1"
 hex = "0.4.3"
 crc16 = "0.4.0"
+eframe = "0.14.0" # Gives us egui, epi and web+native backends
