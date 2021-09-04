@@ -13,4 +13,7 @@ fn main() {
     let mut bms = QuccBMS::new("/dev/tty.usbserial-110", 8);
     let vec = bms.get_cell_v().unwrap();
     println!("{:?}", vec);
+
+    let info = bms.get_info().unwrap();
+    println!("{:?}", info);
 }

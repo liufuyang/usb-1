@@ -7,8 +7,19 @@ use std::io::{Read, Write};
 use std::time::Duration;
 
 pub struct QuccBMS {
+    device: String,
     port: TTYPort,
     cell_count: u16,
+}
+
+#[derive(Debug)]
+pub struct Info {
+    cell_number: u16,
+    running_time: u16,
+    soh: u16,
+    voltage: f32,
+    current: f32,
+    temperature: Vec<f32>,
 }
 
 const AD: &'static str = "01"; // client address
@@ -21,7 +32,35 @@ impl QuccBMS {
             .timeout(Duration::from_secs(2))
             .open_native()
             .expect("Failed to open port");
-        QuccBMS { port, cell_count }
+        QuccBMS {
+            device: device.to_string(),
+            port,
+            cell_count,
+        }
+    }
+
+    pub fn get_device(&self) -> &str {
+        self.device.as_str()
+    }
+
+    pub fn get_info(&mut self) -> Result<Info, Box<dyn Error>> {
+        let reg_start_add = "1000";
+        let number_to_read = hex::encode(8u16.to_be_bytes());
+        let mut decoded =
+            hex::decode(format!("{}{}{}{}", AD, FN_R, reg_start_add, number_to_read))?;
+        let ck = State::<MODBUS>::calculate(decoded.as_slice());
+        decoded.append(&mut ck.to_le_bytes().to_vec());
+        println!("{}", hex::encode(decoded.clone()));
+
+        self.port.write_all(decoded.as_slice());
+
+        let mut buffer = [0; 32];
+        let i = self.port.read(&mut buffer)?;
+        println!("read: {}", i);
+        println!("{}", hex::encode(buffer));
+        crc16_verify(&buffer[0..i]);
+
+        Ok(Info::from_bytes(&buffer[3..3 + 16].try_into().unwrap()))
     }
 
     pub fn get_cell_v(&mut self) -> Result<Vec<u16>, Box<dyn Error>> {
@@ -48,6 +87,23 @@ impl QuccBMS {
             result.push(voltage);
         }
         Ok(result)
+    }
+}
+
+impl Info {
+    pub fn from_bytes(bytes: &[u8; 16]) -> Info {
+        Info {
+            cell_number: u16::from_be_bytes(bytes[0..2].try_into().unwrap()),
+            running_time: u16::from_be_bytes(bytes[2..4].try_into().unwrap()),
+            soh: u16::from_be_bytes(bytes[4..6].try_into().unwrap()),
+            voltage: u16::from_be_bytes(bytes[6..8].try_into().unwrap()) as f32 / 100.0,
+            current: u16::from_be_bytes(bytes[8..10].try_into().unwrap()) as f32 * -0.1 + 1000.0,
+            temperature: vec![
+                u16::from_be_bytes(bytes[10..12].try_into().unwrap()) as f32 * 0.1 - 40.0,
+                u16::from_be_bytes(bytes[12..14].try_into().unwrap()) as f32 * 0.1 - 40.0,
+                u16::from_be_bytes(bytes[14..16].try_into().unwrap()) as f32 * 0.1 - 40.0,
+            ],
+        }
     }
 }
 

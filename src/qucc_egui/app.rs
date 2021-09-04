@@ -30,7 +30,7 @@ impl Default for TemplateApp {
 
 impl epi::App for TemplateApp {
     fn name(&self) -> &str {
-        "egui template"
+        "QUCC BMS"
     }
 
     /// Called by the framework to load old app state (if any).
@@ -77,17 +77,17 @@ impl epi::App for TemplateApp {
             // we want continuous UI updates, so the circle can smoothly follow the arrow's origin:
             ui.ctx().request_repaint();
 
-            ui.heading("Side Panel");
+            // ui.heading("Side Panel");
 
-            ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(label);
-            });
-
-            ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                *value += 1.0;
-            }
+            // ui.horizontal(|ui| {
+            //     ui.label("Write something: ");
+            //     ui.text_edit_singleline(label);
+            // });
+            //
+            // ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
+            // if ui.button("Increment").clicked() {
+            //     *value += 1.0;
+            // }
 
             ui.heading("Cell voltages:");
             ui.vertical(|ui| {
@@ -100,11 +100,10 @@ impl epi::App for TemplateApp {
                         .map(|(i, v)| (v, format!("Cell{:02}: {}mV", i + 1, v)))
                         .collect();
                     output.iter().for_each(|(v, s)| {
-                        if max - min <= 3 {
+                        if max - min <= 5 {
                             ui.label(s);
                             return;
                         }
-
                         if &max == v {
                             ui.label(Label::new(s).text_color(egui::Color32::RED));
                         } else if &min == v {
@@ -126,16 +125,20 @@ impl epi::App for TemplateApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
-            ui.heading("egui template");
-            ui.hyperlink("https://github.com/emilk/egui_template");
+            ui.heading("QUCC BMS");
+            ui.label(format!(
+                "Device connected to: {}",
+                bms.get_bms().get_device()
+            ));
+            ui.hyperlink_to("Author: Fuyang Liu", "https://liufuyang.github.io/cv/");
             ui.add(egui::github_link_file!(
-                "https://github.com/emilk/egui_template/blob/master/",
+                "https://github.com/liufuyang/usb-1/blob/master/",
                 "Source code."
             ));
             egui::warn_if_debug_build(ui);
         });
 
-        if true {
+        if false {
             egui::Window::new("Window").show(ctx, |ui| {
                 ui.label("Windows can be moved by dragging them.");
                 ui.label("They are automatically sized based on contents.");

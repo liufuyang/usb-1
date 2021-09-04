@@ -20,6 +20,10 @@ impl BMS {
         }
     }
 
+    pub fn get_bms(&self) -> &QuccBMS {
+        &self.bms
+    }
+
     fn ready_to_refresh(&mut self) -> bool {
         let now = SystemTime::now();
         if now
