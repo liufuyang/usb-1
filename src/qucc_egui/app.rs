@@ -89,9 +89,40 @@ impl epi::App for TemplateApp {
             //     *value += 1.0;
             // }
 
-            ui.heading("Cell voltages:");
+            ui.heading("Basic info");
             ui.vertical(|ui| {
-                if let Ok(v) = bms.get_cell_v() {
+                if let Ok(info) = bms.get_info() {
+                    ui.label(format!("Voltage: {:0.1}V", info.voltage));
+                    if info.current < 0.0 {
+                        ui.label(
+                            Label::new(format!("Current: {:0.1}A", info.current))
+                                .text_color(egui::Color32::YELLOW),
+                        );
+                    } else {
+                        ui.label(
+                            Label::new(format!("Current: {:0.1}A", info.current))
+                                .text_color(egui::Color32::GREEN),
+                        );
+                    }
+
+                    ui.label(format!("Cell count: {}", info.cell_count));
+                    ui.label(format!("Running time: {}h", info.running_time));
+                    ui.label(format!("SOH: {}%", info.soh));
+                    let output: Vec<String> = info
+                        .temperature
+                        .iter()
+                        .enumerate()
+                        .map(|(i, c)| format!("Temp{:02}: {:0.1}C", i + 1, c))
+                        .collect();
+                    output.iter().for_each(|s| {
+                        ui.label(s);
+                    });
+                }
+            });
+
+            ui.heading("Cell voltages:");
+            ui.vertical(|ui| match bms.get_cell_v() {
+                Ok(v) => {
                     let max = v.iter().max().unwrap_or(&0).clone();
                     let min = v.iter().min().unwrap_or(&0).clone();
                     let output: Vec<(u16, String)> = v
@@ -112,6 +143,9 @@ impl epi::App for TemplateApp {
                             ui.label(s);
                         }
                     });
+                }
+                Err(e) => {
+                    println!("Error when getting cell v: {:?}", e);
                 }
             });
 
