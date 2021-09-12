@@ -23,6 +23,18 @@ pub struct Info {
     pub temperature: Vec<f32>,
 }
 
+#[derive(Debug, Default)]
+pub struct Info2 {
+    pub v_max_mi_no: (u8, u8),
+    pub soc: u16,                  // %
+    pub full_charge_capacity: f32, // * 0.01 AH
+    pub remaining_capacity: f32,   // * 0.01 Ah
+    pub cycle_count: u16,
+    pub protection_code: u16,
+    pub alarm_level: u16,
+    pub system_stage: u16,
+}
+
 const AD: &'static str = "01"; // client address
 const FN_R: &'static str = "03"; // Function code: read and hold
 const FN_W: &'static str = "06"; // Function code: write save register
@@ -72,6 +84,11 @@ impl QuccBMS {
         Ok(Info::from_bytes(bytes.try_into().unwrap()))
     }
 
+    pub fn get_info2(&mut self) -> Result<Info2, Box<dyn Error>> {
+        let bytes = self.read_bytes("100f", 8)?;
+        Ok(Info2::from_bytes(bytes.try_into().unwrap()))
+    }
+
     pub fn get_cell_v(&mut self) -> Result<Vec<u16>, Box<dyn Error>> {
         let cell_count = self.cell_count;
         let bytes = self.read_bytes("1017", self.cell_count as usize)?;
@@ -99,6 +116,24 @@ impl Info {
                 u16::from_be_bytes(bytes[12..14].try_into().unwrap()) as f32 * 0.1 - 40.0,
                 u16::from_be_bytes(bytes[14..16].try_into().unwrap()) as f32 * 0.1 - 40.0,
             ],
+        }
+    }
+}
+
+impl Info2 {
+    pub fn from_bytes(bytes: &[u8; 16]) -> Info2 {
+        Info2 {
+            v_max_mi_no: (
+                u8::from_be_bytes(bytes[0..1].try_into().unwrap()),
+                u8::from_be_bytes(bytes[1..2].try_into().unwrap()),
+            ),
+            soc: u16::from_be_bytes(bytes[2..4].try_into().unwrap()),
+            full_charge_capacity: u16::from_be_bytes(bytes[4..6].try_into().unwrap()) as f32 * 0.01,
+            remaining_capacity: u16::from_be_bytes(bytes[6..8].try_into().unwrap()) as f32 * 0.01,
+            cycle_count: u16::from_be_bytes(bytes[8..10].try_into().unwrap()),
+            protection_code: u16::from_be_bytes(bytes[10..12].try_into().unwrap()),
+            alarm_level: u16::from_be_bytes(bytes[12..14].try_into().unwrap()),
+            system_stage: u16::from_be_bytes(bytes[14..16].try_into().unwrap()),
         }
     }
 }

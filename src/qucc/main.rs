@@ -1,7 +1,4 @@
-use crc16::{State, MODBUS};
-use serialport::{available_ports, SerialPort};
-use std::io::{Read, Write};
-use std::time::Duration;
+use serialport::available_ports;
 use usb_1::qucc::QuccBMS;
 
 fn main() {
@@ -16,4 +13,7 @@ fn main() {
 
     let info = bms.get_info().unwrap();
     println!("{:?}", info);
+
+    let info2 = bms.get_info2().unwrap();
+    println!("{:?}", info2);
 }

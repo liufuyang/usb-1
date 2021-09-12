@@ -1,7 +1,6 @@
 use super::error;
 use std::convert::TryInto;
 use std::error::Error;
-use std::fmt;
 use std::result::Result;
 
 /// return (voltage, current, soc)
