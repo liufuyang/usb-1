@@ -134,11 +134,21 @@ impl epi::App for TemplateApp {
                     );
                     ui.label(
                         Label::new(format!("Voltage: {:0.1}V", info.voltage))
-                            .text_color(egui::Color32::LIGHT_BLUE),
+                            .text_color(egui::Color32::LIGHT_GRAY),
                     );
                     ui.label(format!("Cell count: {}", info.cell_count));
                     ui.label(format!("Running time: {}h", info.running_time));
                     ui.label(format!("SOH: {}%", info.soh));
+
+                    if let Ok(cell_v) = bms.get_cell_v() {
+                        let max = cell_v.iter().max().unwrap_or(&0u16);
+                        let min = cell_v.iter().min().unwrap_or(&0u16);
+                        ui.label(format!("Max cell voltage diff: {}mv", max - min));
+                    }
+                    if let Ok(info2) = bms.get_info2() {
+                        ui.label(format!("Max cell voltage number: {}", info2.v_max_mi_no.0,));
+                        ui.label(format!("Min cell voltage number: {}", info2.v_max_mi_no.1));
+                    }
                 }
             });
 
