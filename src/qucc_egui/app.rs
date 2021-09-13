@@ -94,18 +94,18 @@ impl epi::App for TemplateApp {
                 if let Ok(info2) = bms.get_info2() {
                     if info2.soc > 30 {
                         ui.label(
-                            Label::new(format!("SOC: {:0.1}%", info2.soc))
+                            Label::new(format!("SOC: {:0.1}% 🔋", info2.soc))
                                 .heading()
                                 .text_color(egui::Color32::GREEN),
                         );
                     } else if info2.soc > 15 {
                         ui.label(
-                            Label::new(format!("SOC: {:0.1}%", info2.soc))
+                            Label::new(format!("SOC: {:0.1}% 🔋", info2.soc))
                                 .text_color(egui::Color32::GOLD),
                         );
                     } else {
                         ui.label(
-                            Label::new(format!("SOC: {:0.1}%", info2.soc))
+                            Label::new(format!("SOC: {:0.1}% 🔋", info2.soc))
                                 .text_color(egui::Color32::RED),
                         );
                     }
@@ -113,21 +113,29 @@ impl epi::App for TemplateApp {
 
                 if let Ok(info) = bms.get_info() {
                     let color;
+                    let icon_current;
                     if info.current < -0.2 {
                         // discharge
                         color = egui::Color32::GOLD;
+                        icon_current = "💡";
                     } else if info.current > -0.2 && info.current < 0.2 {
                         // idle
-                        color = egui::Color32::GREEN;
+                        color = egui::Color32::GRAY;
+                        icon_current = "";
                     } else {
+                        // charge
                         color = egui::Color32::GREEN;
+                        icon_current = "🔌";
                     }
                     ui.label(
-                        Label::new(format!("Current: {:0.1}A", info.current))
+                        Label::new(format!("Current: {:0.1}A {}", info.current, icon_current))
                             .heading()
                             .text_color(color),
                     );
-                    ui.label(format!("Voltage: {:0.1}V", info.voltage));
+                    ui.label(
+                        Label::new(format!("Voltage: {:0.1}V", info.voltage))
+                            .text_color(egui::Color32::LIGHT_BLUE),
+                    );
                     ui.label(format!("Cell count: {}", info.cell_count));
                     ui.label(format!("Running time: {}h", info.running_time));
                     ui.label(format!("SOH: {}%", info.soh));
