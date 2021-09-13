@@ -1,4 +1,4 @@
-use crate::qucc::{Info, QuccBMS};
+use crate::qucc::{Info, Info2, QuccBMS};
 use std::error::Error;
 use std::ops::Sub;
 use std::time::{Duration, SystemTime};
@@ -11,6 +11,9 @@ pub struct BMS {
     info_last_check_time: SystemTime,
     info: Info,
 
+    info2_last_check_time: SystemTime,
+    info2: Info2,
+
     cell_v: Vec<u16>,
     cell_v_last_check_time: SystemTime,
 }
@@ -21,6 +24,8 @@ impl BMS {
             bms,
             info: Info::default(),
             info_last_check_time: SystemTime::now().sub(Duration::from_secs(60)),
+            info2: Info2::default(),
+            info2_last_check_time: SystemTime::now().sub(Duration::from_secs(60)),
             cell_v: Vec::new(),
             cell_v_last_check_time: SystemTime::now().sub(Duration::from_secs(60)),
         }
@@ -38,6 +43,20 @@ impl BMS {
             .ge(&REFRESH_RATE)
         {
             self.info_last_check_time = now;
+            true
+        } else {
+            false
+        }
+    }
+
+    fn ready_to_refresh_info2(&mut self) -> bool {
+        let now = SystemTime::now();
+        if now
+            .duration_since(self.info2_last_check_time)
+            .unwrap()
+            .ge(&REFRESH_RATE)
+        {
+            self.info2_last_check_time = now;
             true
         } else {
             false
@@ -72,5 +91,12 @@ impl BMS {
             self.bms.set_cell_count(self.info.cell_count);
         }
         Ok(&self.info)
+    }
+
+    pub fn get_info2(&mut self) -> Result<&Info2, Box<dyn Error>> {
+        if self.ready_to_refresh_info2() {
+            self.info2 = self.bms.get_info2()?;
+        }
+        Ok(&self.info2)
     }
 }

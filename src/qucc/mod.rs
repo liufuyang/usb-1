@@ -67,7 +67,11 @@ impl QuccBMS {
             hex::decode(format!("{}{}{}{}", AD, FN_R, reg_start_add, number_to_read))?;
         let ck = State::<MODBUS>::calculate(decoded.as_slice());
         decoded.append(&mut ck.to_le_bytes().to_vec());
-        println!("CMD: {}", hex::encode(decoded.clone()));
+        println!(
+            "CMD: {} start_add: {}",
+            hex::encode(decoded.clone()),
+            reg_start_add
+        );
 
         self.port.write_all(decoded.as_slice())?;
 
