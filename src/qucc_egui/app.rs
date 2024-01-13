@@ -151,73 +151,74 @@ impl epi::App for TemplateApp {
                 });
             });
 
-            egui::TopBottomPanel::bottom("cell_panel").show(ctx, |ui| {
-                ui.horizontal(|ui| {
-                    ui.vertical(|ui| {
-                        ui.heading("Cell voltages:");
-                        ui.vertical(|ui| match bms.get_cell_v() {
-                            Ok(v) => {
-                                let max = v.iter().max().unwrap_or(&0).clone();
-                                let min = v.iter().min().unwrap_or(&0).clone();
-                                let output: Vec<(u16, String)> = v
-                                    .into_iter()
-                                    .enumerate()
-                                    .map(|(i, v)| (v, format!("Cell{:02}: {}mV", i + 1, v)))
-                                    .collect();
-                                output.iter().for_each(|(v, s)| {
-                                    if max - min <= 5 {
-                                        ui.label(s);
-                                        return;
-                                    }
-                                    if &max == v {
-                                        ui.label(Label::new(s).text_color(egui::Color32::GOLD));
-                                    } else if &min == v {
-                                        ui.label(
-                                            Label::new(s).text_color(egui::Color32::LIGHT_BLUE),
-                                        );
-                                    } else {
-                                        ui.label(s);
-                                    }
-                                });
-                            }
-                            Err(e) => {
-                                println!("Error when getting cell v: {:?}", e);
-                            }
-                        });
-                    });
-
-                    ui.vertical(|ui| {
-                        ui.heading("Temperatures:");
-                        if let Ok(info) = bms.get_info() {
-                            let output: Vec<String> = info
-                                .temperature
-                                .iter()
-                                .enumerate()
-                                .map(|(i, c)| format!("Temp{:02}: {:0.1}C", i + 1, c))
-                                .collect();
-                            output.iter().for_each(|s| {
-                                ui.label(s);
-                            });
-                        }
-                    });
-                });
+            egui::TopBottomPanel::bottom("info _panel").show(ctx, |ui| {
+                ui.heading("QUCC BMS");
+                ui.label(format!(
+                    "Device connected to: {}",
+                    bms.get_bms().get_device()
+                ));
+                ui.hyperlink_to("Author: Fuyang Liu", "https://liufuyang.github.io/cv/");
+                ui.add(egui::github_link_file!(
+                "https://github.com/liufuyang/usb-2/blob/master/",
+                "Source code."
+            ));
+                egui::warn_if_debug_build(ui);
             });
         });
 
+        // cell_panel
         egui::CentralPanel::default().show(ctx, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
 
-            ui.heading("QUCC BMS");
-            ui.label(format!(
-                "Device connected to: {}",
-                bms.get_bms().get_device()
-            ));
-            ui.hyperlink_to("Author: Fuyang Liu", "https://liufuyang.github.io/cv/");
-            ui.add(egui::github_link_file!(
-                "https://github.com/liufuyang/usb-1/blob/master/",
-                "Source code."
-            ));
-            egui::warn_if_debug_build(ui);
+            ui.horizontal(|ui| {
+                ui.vertical(|ui| {
+                    ui.heading("Cell voltages:");
+                    ui.vertical(|ui| match bms.get_cell_v() {
+                        Ok(v) => {
+                            let max = v.iter().max().unwrap_or(&0).clone();
+                            let min = v.iter().min().unwrap_or(&0).clone();
+                            let output: Vec<(u16, String)> = v
+                                .into_iter()
+                                .enumerate()
+                                .map(|(i, v)| (v, format!("Cell{:02}: {}mV", i + 1, v)))
+                                .collect();
+                            output.iter().for_each(|(v, s)| {
+                                if max - min <= 5 {
+                                    ui.label(s);
+                                    return;
+                                }
+                                if &max == v {
+                                    ui.label(Label::new(s).text_color(egui::Color32::GOLD));
+                                } else if &min == v {
+                                    ui.label(
+                                        Label::new(s).text_color(egui::Color32::LIGHT_BLUE),
+                                    );
+                                } else {
+                                    ui.label(s);
+                                }
+                            });
+                        }
+                        Err(e) => {
+                            println!("Error when getting cell v: {:?}", e);
+                        }
+                    });
+                });
+
+                ui.vertical(|ui| {
+                    ui.heading("Temperatures:");
+                    if let Ok(info) = bms.get_info() {
+                        let output: Vec<String> = info
+                            .temperature
+                            .iter()
+                            .enumerate()
+                            .map(|(i, c)| format!("Temp{:02}: {:0.1}C", i + 1, c))
+                            .collect();
+                        output.iter().for_each(|s| {
+                            ui.label(s);
+                        });
+                    }
+                });
+            });
         });
 
         if false {
