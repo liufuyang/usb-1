@@ -37,7 +37,7 @@ pub struct Info2 {
 
 const AD: &'static str = "01"; // client address
 const FN_R: &'static str = "03"; // Function code: read and hold
-const FN_W: &'static str = "06"; // Function code: write save register
+// const FN_W: &'static str = "06"; // Function code: write save register
 
 impl QuccBMS {
     pub fn new(device: &str, cell_count: u16) -> QuccBMS {

@@ -1,4 +1,27 @@
-Learing about USB
+Learing about USB - And a simple QUCC BMS
+
+## About QUCC BMS
+
+I have no connection to the QUCC BMS company, only making a tool 
+for my own project and this code has no guarantee of any stable 
+functionality and is not very well maintained. But if it works
+for you, feel free to continue with it, contribute or share the code.
+
+So basically if you have Rust installed, and connect the QUCC BMS
+via a USB, then you might be able to get the BMS info by running
+the commandline tool or a GUI tool.
+
+```
+cargo run --bin usb-qucc
+
+cargo run --bin qucc-egui
+```
+
+To play and develop on your own with QUCC BMS, the pdf doc here
+[QUCC BMS ModbusRTU Communication Protocol V1.6](QUCC%20BMS-ModbusRTU%20Communication%20ProtocolV1.6-User%20Edition.pdf).
+
+
+## About USB development
 
 https://www.youtube.com/watch?v=YV6Qa5vHAV8&t=601s
 
