@@ -7,7 +7,7 @@ fn main() {
         Err(e) => println!("{}", e),
     }
 
-    let mut bms = QuccBMS::new("/dev/tty.usbserial-110", 8);
+    let mut bms = QuccBMS::new("/dev/tty.usbserial-110").unwrap();
     let vec = bms.get_cell_v().unwrap();
     println!("{:?}", vec);
 

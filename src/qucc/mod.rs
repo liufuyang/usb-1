@@ -42,17 +42,18 @@ const FN_R: &'static str = "03"; // Function code: read and hold
 // const FN_W: &'static str = "06"; // Function code: write save register
 
 impl QuccBMS {
-    pub fn new(device: &str, cell_count: u16) -> QuccBMS {
+    pub fn new(device: &str) -> Result<QuccBMS, Box<dyn Error>> {
         let port = serialport::new(device, 9600)
             .timeout(Duration::from_secs(2))
-            .open_native()
-            .expect("Failed to open port");
-        QuccBMS {
+            .open_native()?;
+        let mut q = QuccBMS {
             device: device.to_string(),
             port,
-            cell_count,
+            cell_count: 0,
             buffer: [0; BUFFER_SIZE],
-        }
+        };
+        q.get_info()?;
+        Ok(q)
     }
 
     pub fn get_device(&self) -> &str {

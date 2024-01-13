@@ -7,13 +7,21 @@ use eframe::{egui, epi};
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "persistence", serde(default))] // if we add new fields, give them default values when deserializing old state
 pub struct TemplateApp {
-    bms: BMS,
+    bms: Option<BMS>,
+    init_error: String,
 }
 
 impl Default for TemplateApp {
     fn default() -> Self {
-        Self {
-            bms: BMS::new(QuccBMS::new("/dev/tty.usbserial-110", 8)),
+        match QuccBMS::new("/dev/tty.usbserial-110") {
+            Ok(q) => Self {
+                bms: Some(BMS::new(q)),
+                init_error: "".to_string(),
+            },
+            Err(e) => Self {
+                bms: None,
+                init_error: e.to_string(),
+            }
         }
     }
 }
@@ -45,7 +53,18 @@ impl epi::App for TemplateApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
     fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
-        let Self { bms } = self;
+        let Self { bms, init_error } = self;
+
+        if bms.is_none() {
+            egui::Window::new("Error").show(ctx, |ui| {
+                ui.label(Label::new("Could not find QUCC BMS or ERROR."));
+                ui.label(init_error.clone());
+                ui.label("");
+                ui.label(Label::new(" Make sure you have QUCC BMS properly connected via usb?"));
+            });
+            return;
+        }
+        let bms = bms.as_mut().unwrap();
 
         // Examples of how to create different panels and windows.
         // Pick whichever suits you.
@@ -136,7 +155,7 @@ impl epi::App for TemplateApp {
                         ui.label(format!("Max cell voltage diff: {}mv", max - min));
                     }
                     if let Ok(info2) = bms.get_info2() {
-                        ui.label(format!("Max cell voltage number: {}", info2.v_max_mi_no.0,));
+                        ui.label(format!("Max cell voltage number: {}", info2.v_max_mi_no.0, ));
                         ui.label(format!("Min cell voltage number: {}", info2.v_max_mi_no.1));
                     }
                 }
@@ -220,14 +239,5 @@ impl epi::App for TemplateApp {
                 });
             });
         });
-
-        if false {
-            egui::Window::new("Window").show(ctx, |ui| {
-                ui.label("Windows can be moved by dragging them.");
-                ui.label("They are automatically sized based on contents.");
-                ui.label("You can turn on resizing and scrolling if you like.");
-                ui.label("You would normally chose either panels OR windows.");
-            });
-        }
     }
 }
