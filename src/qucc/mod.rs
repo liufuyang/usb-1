@@ -6,11 +6,13 @@ use std::error::Error;
 use std::io::{Read, Write};
 use std::time::Duration;
 
+const BUFFER_SIZE: usize = 128;
+
 pub struct QuccBMS {
     device: String,
     port: TTYPort,
     cell_count: u16,
-    buffer: [u8; 32],
+    buffer: [u8; BUFFER_SIZE],
 }
 
 #[derive(Debug, Default)]
@@ -49,7 +51,7 @@ impl QuccBMS {
             device: device.to_string(),
             port,
             cell_count,
-            buffer: [0; 32],
+            buffer: [0; BUFFER_SIZE],
         }
     }
 
