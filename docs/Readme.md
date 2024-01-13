@@ -20,6 +20,7 @@ cargo run --bin qucc-egui
 To play and develop on your own with QUCC BMS, the pdf doc here
 [QUCC BMS ModbusRTU Communication Protocol V1.6](QUCC%20BMS-ModbusRTU%20Communication%20ProtocolV1.6-User%20Edition.pdf).
 
+<img src="qucc_egui.png">
 
 ## About USB development
 
